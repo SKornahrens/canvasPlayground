@@ -256,3 +256,13 @@ function buildDrawnLines(filler, top, bottom) {
     })
   })
 }
+
+//Save drawn image
+//The DrawnCanvas variable contains the finished canvas
+var DrawnCanvas
+$("#SaveImage").on("click", function() {
+  console.log("heard save");
+  DrawnCanvas = canvas.toDataURL()
+  var w=window.open('about:blank','image from canvas');
+  w.document.write("<img src='"+DrawnCanvas+"' alt='from canvas'/>")
+})
