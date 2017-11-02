@@ -11,14 +11,25 @@ canvas.freeDrawingBrush.width = 20
 var Color = net.brehaut.Color;
 
 $("#CutImageUp").on("click", function() {
-  console.log("Cut Image Called");
-  createSquares()
+  prepareSquares()
 })
 
-$("#GetImageData").on("click", function () {
-  // c.putImageData(imagePieceData[49], 50, 50)
-  GetImageData(imagePieceData)
+$("#fillDrawing").on("click", function() {
+  creArtivity()
 })
+
+//calls all necessary functions needed to create squares and
+function prepareSquares() {
+  createSquares()
+  GetImageData(imagePieceData)
+}
+
+//procedurally generates artwork
+function creArtivity() {
+  coverCanvasBackground()
+  buildDrawnLines(fourBorders, rightBorders, leftBorders)
+  canvas.isDrawingMode = !canvas.isDrawingMode;
+}
 
 //Given the image, create 100 40px by 40px squares
 //for each iteration generates a Url to the locally stored image
@@ -28,109 +39,79 @@ image.src = 'jptwo.jpg';
 function createSquares() {
     for(var x = 0; x < 20; ++x) {
         for(var y = 0; y < 20; ++y) {
-            var splitCanvas = document.createElement('canvas');
-            splitCanvas.width = 40;
-            splitCanvas.height = 40;
-            var context = splitCanvas.getContext('2d');
+            var splitCanvas = document.createElement('canvas')
+            splitCanvas.width = 40
+            splitCanvas.height = 40
+            var context = splitCanvas.getContext('2d')
             context.drawImage(image, x * 40, y * 40, 40, 40, 0, 0, splitCanvas.width, splitCanvas.height);
-            getImagePieceUrls(splitCanvas.toDataURL());
+            getImagePieceUrls(splitCanvas.toDataURL())
             getImagePieceData(context.getImageData(0, 0, splitCanvas.width, splitCanvas.height))
         }
     }
+}
+
+//Used to store image data from createSquares
+var imagePieceData = [];
+function getImagePieceData(data) {
+  imagePieceData.push(data);
 }
 
 //Used to store image Urls for placement
 var imagePieceUrls = {};
 var imageCount = 0
 function getImagePieceUrls(image) {
-  console.log("test");
   imagePieceUrls[imageCount] = {
     "url" : image,
     "dark_border" : [],
-    "luminosityAverage" : undefined
+    "luminosityAverage" : undefined //will be used later for upcoming feature
   }
   imageCount++
 }
 
-//Used to store image data for comparison
-var imagePieceData = [];
-function getImagePieceData(data) {
-  imagePieceData.push(data);
-}
 
-//Takes in array of images and finds the RGB values for each pixel of the image and
+
+//stores luminosity of the grayscale of each pixel of a square
+var pixelLightnessData = {}
+
+//finds the RGB values for each pixel of a square
+//converts RGB to grayscale
 //finds the HSL for each pixel as well.
+//Passes pixel information to function that Stores RGB and luminosity
 var count = 0
 function GetImageData(images) {
   images.forEach((imageFound) => {
-    pixelColorData[count] = []
     pixelLightnessData[count] = []
     for (var i = 0; i < imageFound.data.length; i+=4) {
-
+      //stores RGB data prior to grayscale conversion
+      //converts color data into grayscale
       var avg = (imageFound.data[i] + imageFound.data[i + 1] + imageFound.data[i + 2]) / 3;
       imageFound.data[i]     = avg; // red
       imageFound.data[i + 1] = avg; // green
       imageFound.data[i + 2] = avg; // blue
-
       var tempData = []
       tempData.push(imageFound.data[i], imageFound.data[i + 1], imageFound.data[i + 2])
       var tempRGB = Color(tempData)
-      populateColorArrays(tempRGB)
-      // pixelColorData[count].push(tempRGB)
-      // pixelLightnessData[count].push(tempRGB.toHSL().lightness)
+      populateColorArrays(count, tempRGB)
     }
     count++
   })
-}
-
-
-var pixelColorData = {}
-var pixelLightnessData = {}
-function populateColorArrays(data) {
-  pixelColorData[count].push(data)
-  pixelLightnessData[count].push(data.toHSL().lightness)
-
-}
-
-//
-// $("#GetImageData").on("click", function () {
-//   console.log("Get Image Data Called");
-//   c.putImageData(imagePieceData[49], 50, 50)
-//   var data = imagePieceData[49].data
-//     for (var i = 0; i < data.length; i+=4) {
-//       var tempData = []
-//       tempData.push(data[i], data[i+1], data[i+2])
-//       var tempRGB = Color(tempData)
-//       pixelColorData.push(tempRGB)
-//       pixelLightnessData.push(tempRGB.toHSL().lightness)
-//     }
-//     getBorderData(pixelLightnessData)
-// })
-
-
-
-
-$("#getBorderData").on("click", function () {
-  console.log(pixelLightnessData);
-  console.log(Object.keys(pixelLightnessData))
   var keyOfLightData = Object.keys(pixelLightnessData)
-  console.log(keyOfLightData);
-  console.log();
-  // pixelLightnessData.forEach((image) => {
-  //   console.log(Object.keys(pixelLightnessData));
   for (var l = 0; l < keyOfLightData.length; l++) {
     getBorderData(pixelLightnessData[l]);
   }
+}
 
+//stores RGB and luminosity of each square
+function populateColorArrays(index, data) {
+  pixelLightnessData[index].push(data.toHSL().lightness)
+}
 
-    // getBorderData(pixelLightnessData[49])
-})
-
+//pixelBorderColors is not necessary and is not used past this function
+//I was using it to evaluate and learn from what getBorderData was doing
+//getBorderData collects the luminosity of every pixel along each squares border
 var pixelBorderColors = {}
 var borderCount = 0;
 function getBorderData(data) {
-
-
   pixelBorderColors["top"] = []
   var sumTop = 0
   for (var i = 0; i <= 39; i++) {
@@ -157,14 +138,14 @@ function getBorderData(data) {
   pixelBorderColors["right"].push(sumRight / 40)
   borderTagger(borderCount, sumTop, sumRight, sumBottom, sumLeft)
   borderCount++
-
 }
 
+//Arrays containing image urls for images that fit the border description
 var noBorder = []
 var fourBorders = []
 var leftBorders = []
 var rightBorders = []
-
+//This function sorts and tags the images. I've done this twice right now as I was experimenting with the best way to go about this. borderTagger creates arrays for the border types I needed for buildDrawnLines and also adds tags to the object imagePieceUrls
 function borderTagger(index, top, right, bottom, left) {
   var topAvg = top / 40 * 225
   var rightAvg = right / 40 * 225
@@ -188,127 +169,20 @@ function borderTagger(index, top, right, bottom, left) {
   if (70 > rightAvg) {
     imagePieceUrls[index].dark_border.push("right")
   }
-
-
   if (70 > bottomAvg) {
     imagePieceUrls[index].dark_border.push("bottom")
   }
   if (70 > leftAvg) {
     imagePieceUrls[index].dark_border.push("left")
   }
-  // console.log(imagePieceUrls[49])
-}
-var countTop = 0
-var countRight = 0
-var countBottom = 0
-var countLeft = 0
-var countNoBorder = 0
-var countOneBorder = 0
-var countTwoBorder = 0
-var countThreeBorder = 0
-var countFourBorder = 0
-
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
 }
 
-$("#populateSort").on("click", function() {
-  for (var o = 0; o < Object.keys(imagePieceUrls).length; o++) {
-    if (imagePieceUrls[o].dark_border.length === 1) {
-      countOneBorder++
-    }
-    if (imagePieceUrls[o].dark_border.length === 2) {
-      countTwoBorder++
-    }
-    if (imagePieceUrls[o].dark_border.length === 3) {
-      countThreeBorder++
-    }
-    if (imagePieceUrls[o].dark_border.length === 4) {
-      countFourBorder++
-    }
-
-    if (imagePieceUrls[o].dark_border.length === 0) {
-      countNoBorder++
-      var placeImage = imagePieceUrls[o].url
-      console.log(placeImage);
-      fabric.Image.fromURL(placeImage, function(oImg) {
-        oImg.set('left', getRandomArbitrary(1200,1900))
-        oImg.set('top', getRandomArbitrary(0,900))
-        canvas.add(oImg)
-      })
-    }
-    if (imagePieceUrls[o].dark_border.length < 3) {
-      for (var p = 0; p < imagePieceUrls[o].dark_border.length; p++) {
-        if (imagePieceUrls[o].dark_border[p] === "top") {
-          countTop++
-          var placeImage = imagePieceUrls[o].url
-          fabric.Image.fromURL(placeImage, function(oImg) {
-            oImg.set('left', getRandomArbitrary(10,400))
-            oImg.set('top', getRandomArbitrary(10,400))
-            canvas.add(oImg)
-          })
-        }
-        if (imagePieceUrls[o].dark_border[p] === "right") {
-          countRight++
-          var placeImage = imagePieceUrls[o].url
-          fabric.Image.fromURL(placeImage, function(oImg) {
-            oImg.set('left', getRandomArbitrary(600,1000))
-            oImg.set('top', getRandomArbitrary(0,400))
-            canvas.add(oImg)
-          })
-        }
-        if (imagePieceUrls[o].dark_border[p] === "bottom") {
-          countBottom++
-          var placeImage = imagePieceUrls[o].url
-          fabric.Image.fromURL(placeImage, function(oImg) {
-            oImg.set('left', getRandomArbitrary(600,900))
-            oImg.set('top', getRandomArbitrary(600,900))
-            canvas.add(oImg)
-          })
-        }
-        if (imagePieceUrls[o].dark_border[p] === "left") {
-          countLeft++
-          var placeImage = imagePieceUrls[o].url
-          fabric.Image.fromURL(placeImage, function(oImg) {
-            oImg.set('left', getRandomArbitrary(10,400))
-            oImg.set('top', getRandomArbitrary(600,900))
-            canvas.add(oImg)
-          })
-        }
-      }
-    }
-    else {
-      var placeImage = imagePieceUrls[o].url
-      fabric.Image.fromURL(placeImage, function(oImg) {
-        oImg.set('left', getRandomArbitrary(400,500))
-        oImg.set('top', getRandomArbitrary(500,600))
-        canvas.add(oImg)
-      })
-    }
-  }
-  //Counting square border types can be removed before production
-  console.log("Top pieces: " + countTop);
-  console.log("Right pieces: " + countRight);
-  console.log("Bottom pieces: " + countBottom);
-  console.log("Left pieces: " + countLeft);
-  console.log("No border pieces: " + countNoBorder);
-  console.log("One border: " + countOneBorder);
-  console.log("Two border: " + countTwoBorder);
-  console.log("Three border: " + countThreeBorder);
-  console.log("Four border: " + countFourBorder);
-  //Counting square border types can be removed before production
-})
-
-$("#coverCanvas").on("click", function() {
-  console.log("heard");
-  coverCanvasBackground()
-})
-
+//iterates over the canvas and places a single noBorder square every 10px
 function coverCanvasBackground() {
- for (let x = 0; x < 500; x+=10) {
-   for (let y = 0; y < 500; y+=10) {
-     let placeImage = getRandomNoBorderSquare()
-     fabric.Image.fromURL(placeImage, function(oImg) {
+ for (let x = 0; x < canvas.width; x+=10) {
+   for (let y = 0; y < canvas.height; y+=10) {
+     let lightSquare = getRandomSquare(noBorder)
+     fabric.Image.fromURL(lightSquare, function(oImg) {
        oImg.set('left', x) //x
        oImg.set('top', y) //y
        oImg.set('angle', Math.random() * 360)
@@ -318,20 +192,24 @@ function coverCanvasBackground() {
  }
 }
 
-function getRandomNoBorderSquare() {
-  let randomSelection = Math.floor(getRandomArbitrary(0,noBorder.length))
-    return noBorder[randomSelection]
+//finds a random square for the type of square input
+//valid inputs: noBorder, fourBorders, rightBorders, leftBorders
+function getRandomSquare(typeOfsquare) {
+  let randomSelection = Math.floor(getRandomArbitrary(0, typeOfsquare.length))
+    return typeOfsquare[randomSelection]
 }
 
-//Record drawn line
+//helper function to find a random number between two parameters
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+//Record the coordinates for the user drawn lines
+var userDrawnLines = [];
 var lastPoint = undefined;
 canvas.on('mouse:down', function(options) {
     startRecording();
 });
-
-var userDrawnLines = [];
-
-
 function startRecording(){
     var line = [];
     canvas.on('mouse:move', recordMoment);
@@ -349,43 +227,32 @@ function startRecording(){
     }
 }
 
-$("#fillDrawing").on("click", function() {
-  for (let t = 0; t < 6; t++) {
-    fourBorders.forEach((images) => {
-      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
-      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
-      fabric.Image.fromURL(images, function(oImg) {
-        oImg.set('left', userDrawnLines[randomLine][randomIndex].x - 35)
-        oImg.set('top', userDrawnLines[randomLine][randomIndex].y - 35)
-        oImg.set('angle', Math.floor(Math.random() * 30))
+//Finds the user drawn lines
+//Populates each coordinate with three squares to create a top, bottom, and filler
+function buildDrawnLines(filler, top, bottom) {
+  userDrawnLines.forEach((line) => {
+    line.forEach((coordinate) => {
+      let topPiece = getRandomSquare(top)
+      fabric.Image.fromURL(topPiece, function(oImg) {
+        oImg.set('left', coordinate.x - 55)
+        oImg.set('top', coordinate.y - 55)
+        oImg.set('angle', getRandomArbitrary(40,50))
+        canvas.add(oImg)
+      })
+      let fillerPiece = getRandomSquare(filler)
+      fabric.Image.fromURL(fillerPiece, function(oImg) {
+        oImg.set('left', coordinate.x - 35)
+        oImg.set('top', coordinate.y - 35)
+        oImg.set('angle', getRandomArbitrary(0,50))
+        canvas.add(oImg)
+      })
+      let bottomPiece = getRandomSquare(bottom)
+      fabric.Image.fromURL(bottomPiece, function(oImg) {
+        oImg.set('left', coordinate.x - 10)
+        oImg.set('top', coordinate.y - 10)
+        oImg.set('angle', getRandomArbitrary(40,50))
         canvas.add(oImg)
       })
     })
-  }
-  for (let t = 0; t < 6; t++) {
-    rightBorders.forEach((images) => {
-      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
-      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
-      fabric.Image.fromURL(images, function(oImg) {
-        oImg.set('left', userDrawnLines[randomLine][randomIndex].x - 55)
-        oImg.set('top', userDrawnLines[randomLine][randomIndex].y - 55)
-        oImg.set('angle', 45)
-        canvas.add(oImg)
-      })
-    })
-  }
-  for (let t = 0; t < 6; t++) {
-    leftBorders.forEach((images) => {
-      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
-      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
-      fabric.Image.fromURL(images, function(oImg) {
-        oImg.set('left', userDrawnLines[randomLine][randomIndex].x )
-        oImg.set('top', userDrawnLines[randomLine][randomIndex].y )
-        oImg.set('angle', 45)
-        canvas.add(oImg)
-      })
-    })
-  }
-
-  canvas.isDrawingMode = !canvas.isDrawingMode;
-})
+  })
+}
