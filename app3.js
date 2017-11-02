@@ -1,7 +1,7 @@
-var canvas = new fabric.Canvas('canvas', {
+var canvas = this.__canvas = new fabric.Canvas('canvas', {
   isDrawingMode: true,
 })
-canvas.freeDrawingBrush.width = 5
+canvas.freeDrawingBrush.width = 40
   canvas.setWidth(1400)
   canvas.setHeight(600)
   canvas.setBackgroundColor("white")
@@ -34,11 +34,12 @@ function cutImageUp() {
       var variation = Math.floor(Math.random() * 20) - 10
       fabric.Image.fromURL(images, function(oImg) {
         oImg.set('left', lines[randomLine][randomIndex].x - 45 + variation)
-        oImg.set('top', lines[randomLine][randomIndex].y - 45 + variation)
+        oImg.set('top', lines[randomLine][randomIndex].y - 45)
         oImg.set('angle', Math.floor(Math.random() * 30))
         canvas.add(oImg)
       })
     })
+    canvas.isDrawingMode = !canvas.isDrawingMode;
 }
 
 //Record drawn line

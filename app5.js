@@ -1,9 +1,11 @@
 
 //Canvas setup
-var canvas = new fabric.Canvas('canvas')
-var c = canvas.getContext('2d')
-  canvas.setWidth(2000)
-  canvas.setHeight(1000)
+var canvas = this.__canvas = new fabric.Canvas('canvas', {
+  isDrawingMode: true,
+})
+canvas.freeDrawingBrush.width = 20
+  canvas.setWidth(500)
+  canvas.setHeight(500)
 
 //requiring in Color.js
 var Color = net.brehaut.Color;
@@ -87,6 +89,7 @@ var pixelLightnessData = {}
 function populateColorArrays(data) {
   pixelColorData[count].push(data)
   pixelLightnessData[count].push(data.toHSL().lightness)
+
 }
 
 //
@@ -157,17 +160,36 @@ function getBorderData(data) {
 
 }
 
+var noBorder = []
+var fourBorders = []
+var leftBorders = []
+var rightBorders = []
+
 function borderTagger(index, top, right, bottom, left) {
   var topAvg = top / 40 * 225
   var rightAvg = right / 40 * 225
   var bottomAvg = bottom / 40 * 225
   var leftAvg = left / 40 * 255
+  if (70 < topAvg && 70 < rightAvg && 70 < bottomAvg && 70 < leftAvg) {
+    noBorder.push(imagePieceUrls[index].url)
+  }
+  if (70 > topAvg && 70 > rightAvg && 70 > bottomAvg && 70 > leftAvg) {
+    fourBorders.push(imagePieceUrls[index].url)
+  }
+  if (70 < topAvg && 70 > rightAvg && 70 < bottomAvg && 70 < leftAvg) {
+    rightBorders.push(imagePieceUrls[index].url)
+  }
+  if (70 < topAvg && 70 < rightAvg && 70 < bottomAvg && 70 > leftAvg) {
+    leftBorders.push(imagePieceUrls[index].url)
+  }
   if (70 > topAvg) {
     imagePieceUrls[index].dark_border.push("top")
   }
   if (70 > rightAvg) {
     imagePieceUrls[index].dark_border.push("right")
   }
+
+
   if (70 > bottomAvg) {
     imagePieceUrls[index].dark_border.push("bottom")
   }
@@ -277,26 +299,93 @@ $("#populateSort").on("click", function() {
   //Counting square border types can be removed before production
 })
 
-//Save drawn image
-var imagePieceData
-$("#SaveImage").on("click", function() {
-  console.log("heard save");
-  var DrawnCanvas = imagePieceUrls[49]
-  var w=window.open('about:blank','image from canvas');
-  w.document.write("<img src='"+DrawnCanvas+"' alt='from canvas'/>")
+$("#coverCanvas").on("click", function() {
+  console.log("heard");
+  coverCanvasBackground()
 })
 
-$("#getGrayScale").on("click", function() {
-  console.log("heard grayscale");
-  var data = imagePieceData[49].data
-  console.log(data[0]+ " " + data[1] + " " + data[2]);
-  for (var i = 0; i < data.length; i += 4) {
-      var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      data[i]     = avg; // red
-      data[i + 1] = avg; // green
-      data[i + 2] = avg; // blue
-  c.putImageData(imagePieceData[49], 50, 100)
+function coverCanvasBackground() {
+ for (let x = 0; x < 500; x+=10) {
+   for (let y = 0; y < 500; y+=10) {
+     let placeImage = getRandomNoBorderSquare()
+     fabric.Image.fromURL(placeImage, function(oImg) {
+       oImg.set('left', x) //x
+       oImg.set('top', y) //y
+       oImg.set('angle', Math.random() * 360)
+       canvas.add(oImg)
+     })
+   }
+ }
+}
+
+function getRandomNoBorderSquare() {
+  let randomSelection = Math.floor(getRandomArbitrary(0,noBorder.length))
+    return noBorder[randomSelection]
+}
+
+//Record drawn line
+var lastPoint = undefined;
+canvas.on('mouse:down', function(options) {
+    startRecording();
+});
+
+var userDrawnLines = [];
+
+
+function startRecording(){
+    var line = [];
+    canvas.on('mouse:move', recordMoment);
+    canvas.on("mouse:up", stopRecording);
+
+    function recordMoment(event){
+        line.push({x: event.e.x, y: event.e.y});
+        // console.log(event.e.x + " " + event.e.y);
+        lastPoint = [event.e.x, event.e.y];
+    }
+    function stopRecording(){
+        userDrawnLines.push(line);
+        canvas.off('mouse:move', recordMoment);
+        canvas.off("mouse:up", stopRecording);
+    }
+}
+
+$("#fillDrawing").on("click", function() {
+  for (let t = 0; t < 6; t++) {
+    fourBorders.forEach((images) => {
+      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
+      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
+      fabric.Image.fromURL(images, function(oImg) {
+        oImg.set('left', userDrawnLines[randomLine][randomIndex].x - 35)
+        oImg.set('top', userDrawnLines[randomLine][randomIndex].y - 35)
+        oImg.set('angle', Math.floor(Math.random() * 30))
+        canvas.add(oImg)
+      })
+    })
   }
-  console.log(imagePieceData[49].data[0]);
-  console.log(imagePieceData[50]);
+  for (let t = 0; t < 6; t++) {
+    rightBorders.forEach((images) => {
+      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
+      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
+      fabric.Image.fromURL(images, function(oImg) {
+        oImg.set('left', userDrawnLines[randomLine][randomIndex].x - 55)
+        oImg.set('top', userDrawnLines[randomLine][randomIndex].y - 55)
+        oImg.set('angle', 45)
+        canvas.add(oImg)
+      })
+    })
+  }
+  for (let t = 0; t < 6; t++) {
+    leftBorders.forEach((images) => {
+      var randomLine = Math.floor(Math.random() * userDrawnLines.length)
+      var randomIndex = Math.floor(Math.random() * userDrawnLines[randomLine].length)
+      fabric.Image.fromURL(images, function(oImg) {
+        oImg.set('left', userDrawnLines[randomLine][randomIndex].x )
+        oImg.set('top', userDrawnLines[randomLine][randomIndex].y )
+        oImg.set('angle', 45)
+        canvas.add(oImg)
+      })
+    })
+  }
+
+  canvas.isDrawingMode = !canvas.isDrawingMode;
 })
