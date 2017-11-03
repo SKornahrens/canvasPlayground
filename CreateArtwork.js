@@ -34,7 +34,7 @@ function prepareSquares() {
 
 //procedurally generates artwork
 function creArtivity() {
-  // coverCanvasBackground()
+  coverCanvasBackground()
   buildDrawnLines(fourBorders, rightBorders, leftBorders)
   canvas.isDrawingMode = !canvas.isDrawingMode;
 }
