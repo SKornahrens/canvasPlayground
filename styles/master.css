@@ -6,18 +6,16 @@ canvas {
   border: 1px solid #000000;
 }
 
-#splitImages {
-  width: 440px;
-  float: left
+#canvasHolder {
+  margin-top: 10%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#original {
-  width: 800px;
-  float: left;
-  margin-right: 20px
-}
 
-/*#test {
-  height: 400;
-  width: 400;
-}*/
+button {
+  height: 50px;
+}
