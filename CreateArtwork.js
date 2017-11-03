@@ -11,6 +11,7 @@ canvas.freeDrawingBrush.width = 20
 var Color = net.brehaut.Color;
 
 //prepares artwork for generation
+
 $("#CutImageUp").on("click", function() {
   prepareSquares()
 })
@@ -33,7 +34,7 @@ function prepareSquares() {
 
 //procedurally generates artwork
 function creArtivity() {
-  coverCanvasBackground()
+  // coverCanvasBackground()
   buildDrawnLines(fourBorders, rightBorders, leftBorders)
   canvas.isDrawingMode = !canvas.isDrawingMode;
 }
@@ -213,6 +214,8 @@ function getRandomArbitrary(min, max) {
 
 //Record the coordinates for the user drawn lines
 var userDrawnLines = [];
+var offsetLeft = $("#canvasHugger").position().left
+var offsetTop = $("#canvasHugger").position().top
 var lastPoint = undefined;
 canvas.on('mouse:down', function(options) {
     startRecording();
@@ -223,8 +226,7 @@ function startRecording(){
     canvas.on("mouse:up", stopRecording);
 
     function recordMoment(event){
-        line.push({x: event.e.x, y: event.e.y});
-        // console.log(event.e.x + " " + event.e.y);
+        line.push({x: event.e.x - offsetLeft, y: event.e.y - offsetTop});
         lastPoint = [event.e.x, event.e.y];
     }
     function stopRecording(){
@@ -241,22 +243,22 @@ function buildDrawnLines(filler, top, bottom) {
     line.forEach((coordinate) => {
       let topPiece = getRandomSquare(top)
       fabric.Image.fromURL(topPiece, function(oImg) {
-        oImg.set('left', coordinate.x - 55)
-        oImg.set('top', coordinate.y - 55)
+        oImg.set('left', coordinate.x - 35)
+        oImg.set('top', coordinate.y - 35)
         oImg.set('angle', getRandomArbitrary(40,50))
         canvas.add(oImg)
       })
       let fillerPiece = getRandomSquare(filler)
       fabric.Image.fromURL(fillerPiece, function(oImg) {
-        oImg.set('left', coordinate.x - 35)
-        oImg.set('top', coordinate.y - 35)
+        oImg.set('left', coordinate.x - 25)
+        oImg.set('top', coordinate.y - 25)
         oImg.set('angle', getRandomArbitrary(0,50))
         canvas.add(oImg)
       })
       let bottomPiece = getRandomSquare(bottom)
       fabric.Image.fromURL(bottomPiece, function(oImg) {
-        oImg.set('left', coordinate.x - 10)
-        oImg.set('top', coordinate.y - 10)
+        oImg.set('left', coordinate.x + 5)
+        oImg.set('top', coordinate.y + 5)
         oImg.set('angle', getRandomArbitrary(40,50))
         canvas.add(oImg)
       })
