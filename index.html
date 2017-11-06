@@ -2,12 +2,24 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Canvas Test</title>
+    <title>Procedural JP</title>
     <link rel="stylesheet" href="/styles/master.css">
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div id="canvasHolder">
+      <div>
+        <button id="CutImageUp" type="button" name="button">Cut Image Into Squares</button>
+        <button id="GenerateArtwork" type="button" name="button">Generate Artwork</button>
+        <button id="SaveImage" type="button" name="button">Save Image</button>
+      </div>
+    <div id="canvasHugger">
+    <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
 
+    </div>
   </body>
-  <script src="app.js" charset="utf-8"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.19/fabric.min.js" charset="utf-8"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-js/1.0.1/color.js" charset="utf-8"></script>
+  <script src="createartwork.js" charset="utf-8"></script>
 </html>

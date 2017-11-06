@@ -1,3 +1,9 @@
+$(document).ready(function() {
+
+})
+
+
+
 
 //Canvas setup
 var canvas = this.__canvas = new fabric.Canvas('canvas', {
@@ -243,22 +249,22 @@ function buildDrawnLines(filler, top, bottom) {
     line.forEach((coordinate) => {
       let topPiece = getRandomSquare(top)
       fabric.Image.fromURL(topPiece, function(oImg) {
-        oImg.set('left', coordinate.x - 35)
-        oImg.set('top', coordinate.y - 35)
+        oImg.set('left', coordinate.x - 30)
+        oImg.set('top', coordinate.y - 30)
         oImg.set('angle', getRandomArbitrary(40,50))
         canvas.add(oImg)
       })
       let fillerPiece = getRandomSquare(filler)
       fabric.Image.fromURL(fillerPiece, function(oImg) {
-        oImg.set('left', coordinate.x - 25)
-        oImg.set('top', coordinate.y - 25)
+        oImg.set('left', coordinate.x - 5)
+        oImg.set('top', coordinate.y - 5)
         oImg.set('angle', getRandomArbitrary(0,50))
         canvas.add(oImg)
       })
       let bottomPiece = getRandomSquare(bottom)
       fabric.Image.fromURL(bottomPiece, function(oImg) {
-        oImg.set('left', coordinate.x + 5)
-        oImg.set('top', coordinate.y + 5)
+        oImg.set('left', coordinate.x + 17)
+        oImg.set('top', coordinate.y + 17)
         oImg.set('angle', getRandomArbitrary(40,50))
         canvas.add(oImg)
       })
