@@ -6,19 +6,33 @@
     <link rel="stylesheet" href="/styles/master.css">
   </head>
   <body>
+    <h5>To get started draw something on the canvas then hit Generate Artwork.</h5>
+    <h5>Generating thousands of tiles takes time! It will take about a minute to complete.</h5>
     <div id="canvasHolder">
       <div>
-        <button id="CutImageUp" type="button" name="button">Cut Image Into Squares</button>
         <button id="GenerateArtwork" type="button" name="button">Generate Artwork</button>
         <button id="SaveImage" type="button" name="button">Save Image</button>
       </div>
-    <div id="canvasHugger">
-    <canvas id="canvas" width="500" height="500"></canvas>
+      <div id="canvasHugger">
+      <canvas id="canvas" width="500" height="500"></canvas>
+      </div>
     </div>
 
+    <div id="intro">
+      <h3>Procedural Generating Artwork Test</h3>
+      <h4>What is this?</h4>
+      <p>A test site for procedural generation. Loaded in the background is an untitled Jackson Pollock painting. It will be cut into 400 unique 40px by 40px tiles. Those tiles will be used to generate a piece of artwork based off the user's drawings.</p>
+      <h4>How does it work?</h4>
+      <p> Creating the tiles: The tiles are put through a categorization process. First each tile's border is mapped and an average luminosity is discovered. This average for each side of the tile is then weighed against a set threshold for luminosity. If the border's luminosity is over the threshold it is tagged with the appropriate "dark border" tag. These tags dictate which part of the procedural generation they will be used for. Tiles with no borders are considered background tiles, while tiles with borders are used for generating the lines.</p>
+      <p>Procedural Generation from a high level: As a user draws on the canvas their path is mapped to an array that the app will follow during tile placement generation. The background of the canvas will be filled in with white dominant, no border tiles. While the user drawn lines will outlined with tiles that have black borders and filled with tiles that contain all four border.</p>
+      <h4>What's next?</h4>
+      <p>Currently the procedurally generation works best with lines that start at the bottom left and end towards the top right. I plan to upgrade the tile placement algorithm to better suit a variety of shapes and line directions. Also, this app looks and works best from desktop. I will be making it mobile friendly in a later sprint.</p>
+      <h4>Built by Steve Kornahrens.</h4>
     </div>
+
+
   </body>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.19/fabric.min.js" charset="utf-8"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-js/1.0.1/color.js" charset="utf-8"></script>
   <script src="createartwork.js" charset="utf-8"></script>

@@ -1,9 +1,5 @@
-$(document).ready(function() {
-
-})
-
-
-
+var image = new Image();
+image.src = 'jptwo.jpg';
 
 //Canvas setup
 var canvas = this.__canvas = new fabric.Canvas('canvas', {
@@ -18,12 +14,9 @@ var Color = net.brehaut.Color;
 
 //prepares artwork for generation
 
-$("#CutImageUp").on("click", function() {
-  prepareSquares()
-})
-
 //creates the procedurally generated artwork
 $("#GenerateArtwork").on("click", function() {
+  prepareSquares()
   creArtivity()
 })
 
@@ -48,8 +41,7 @@ function creArtivity() {
 //Given the image, create 100 40px by 40px squares
 //for each iteration generates a Url to the locally stored image
 //and produces Image data that can be used for comparison purposes
-var image = new Image();
-image.src = 'jptwo.jpg';
+
 function createSquares() {
     for(var x = 0; x < 20; ++x) {
         for(var y = 0; y < 20; ++y) {
